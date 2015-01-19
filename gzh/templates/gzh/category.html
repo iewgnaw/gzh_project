@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load my_tag %}
+{% block main %}
+<script>
+	// $(document).ready(function(){
+		function subscribe(value){
+			$.get("/gzh/subscribe?id=" + value, function(data, status){
+				alert(this)
+				this.innerHTML=data
+			});
+		}
+	// });
+</script>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-4" id="gzh_container">
+				{% for gzh in gzhs %}
+				<div class="row gzh_box">
+					<div class="col-md-2 logo-box"><img src="{{ gzh.logo }}"/></div>
+					<div class="text_box">
+						<h5 style="display: inline;"><strong>{{ gzh.wx_name }}</strong></h5>
+						<button class="subscribe" style="float: right" onclick="subscribe({{ gzh.id }})">
+						{% if user|has_subscribe:gzh.id %}
+							退订
+						{% else %}
+							订阅
+						{% endif %}
+						</button>
+						<p>简介:  {{ gzh.summary }}</p>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+<div class="pagination col-md-8" style="clear: both">
+	<span class="step-links">
+		{% if gzhs.has_previous %}
+			<a href="?page=1">首页</a>
+			<a href="?page={{ gzhs.previous_page_number }}">上一页</a>
+		{% endif %}
+
+		<span class="current">
+			Page {{ gzhs.number }} of {{ gzhs.paginator.num_pages }}.
+		</span>
+
+		{% if gzhs.has_next %}
+			<a href="?page={{ gzhs.next_page_number }}">下一页</a>
+		{% endif %}
+	</span>
+</div>

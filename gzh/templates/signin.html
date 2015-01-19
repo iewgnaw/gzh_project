@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block main %}
+<div class="container signin-wrapper col-md-8 col-md-offset-2">
+    <div class="login">
+        <ul class="welcome list-unstyled">
+            <li>微信公众号聚合阅读，每天吸收新鲜资讯</li>
+            <li>图文混排的微信公众号的文章, 每天定时推送到您的Kindle</li>
+        </div>
+        <div class="weibo-login">
+            <a class="button-weibo-login" href="/weibo_login"><img src="{% static 'images/weibo-logo.png'%}"/>微博帐号登录</a>
+        </div>
+    </div>
+{% endblock %}

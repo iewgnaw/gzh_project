@@ -1,0 +1,243 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Home</title>
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'css/home.css'%}">
+<script src="{% static 'js/jquery.unveil.js'%}"></script>
+<script>
+	//
+	var unlock = true;
+
+	function getEntries(feed_id, page){
+		var entries_ul = $('#entries-column ul.entries');
+		$.ajax({
+			type: 'GET',
+			url: '/gzh/' + feed_id + '/entries/',
+			data: 'page=' + page,
+			beforeSend: function( XMLHttpRequest){
+				var loading = $('<p class="loading">正在加载中......</p>');
+				loading.appendTo(entries_ul);
+			},
+			success: function(data){
+				entries_ul.attr('next_page', data['next_page']);
+				$.each(data['entries'], function(index, item){
+
+					var entryLi = $('<li></li>');
+					entryLi.addClass('entry-item');
+
+					if (item.readed == 0){
+						entryLi.addClass('readed');
+					}
+
+					var entryCover = $('<img>');
+					entryCover.addClass('cover');
+					entryCover.attr('src', item.cover);
+
+					var entryTitle = $('<h4>');
+					entryTitle.addClass('title');
+					entryTitle.text(item.title);
+
+					var entryDate = $('<p>');
+					entryDate.addClass('date');
+					entryDate.text(item.last_modified);
+
+
+					var entryId = $('<p>');
+					entryId.text(item.id);
+					entryId.addClass('hidden entry-id');
+
+                    entryCover.appendTo(entryLi);
+					entryTitle.appendTo(entryLi);
+					entryDate.appendTo(entryLi);
+					entryId.appendTo(entryLi);
+					entryLi.appendTo(entryLi);
+					$('<div></div>').addClass('clear').appendTo(entryLi);
+					entryLi.appendTo(entries_ul);
+				});
+			},
+			complete: function(XMLHttpRequest, textStatus){
+				unlock = true;
+				$('.loading').remove();
+                if(page == 1 && $('li.entry-item').length > 0){
+					var firstItem = $('li.entry-item:first');
+					firstItem.addClass('entry-selecting');
+					getEntry($('.entry-id', firstItem).html());
+				}
+			}
+		});
+	}
+
+	function entriesFirstPage(feed_id){
+		$('#entries-column ul.entries').html('');
+		$('#entries-column').scrollTop(0);
+		getEntries(feed_id, 1);
+	}
+
+	function entriesNextPage(feed_id){
+		var next_page = $('ul.entries').attr('next_page');
+		if (next_page > 0){
+			getEntries(feed_id, next_page);
+		}else{
+			// $('<p>最后一页</p>').appendTo($('ul.entries'));
+		}
+	}
+
+	//
+	function markAsReaded(id){
+		$.get('/mark_as_readed?id=' + id, function(response){
+			return response;
+		});
+	}
+	//
+	function getEntry(id){
+		$.ajax({
+			type: 'GET',
+			url:  '/gzh/entry/' + id,
+			beforeSend: function(XMLHttpRequest){
+				$('.js-toolbar').hide();
+				var loading = $('<p class="loading">正在加载中......</p>');
+                $('.entry').html(loading);
+				$('#entry-column').animate({scrollTop: '0px'}, 100);
+			},
+			success: function(data){
+				$('.entry').html(data);
+				$('.js-toolbar').show().attr('data-id', id);
+				if(!$('.entry-selecting').hasClass('readed')){
+					$('.entry-selecting').addClass('readed');
+					markAsReaded(id);
+				};
+                $('img').unveil(20);
+			},
+			complete: function(XMLHttpRequest, textStatus){
+                $(".loading").remove();
+			}
+		});
+	}
+
+	//中间栏信息获取
+        $(document).on('click', '.feeds li', function(){
+        	$('.feed-selecting').removeClass('feed-selecting');
+        	$(this).addClass('feed-selecting');
+        	$('#entries-column').scrollTop(0);
+            entriesFirstPage($(this).attr('feed-id'));
+			$('.js-toolbar').hide();
+            var loading = $('<p class="loading">正在加载中......</p>');
+            $('.entry').html(loading);
+        });
+
+
+	$(document).ready(function(){
+		$(document).on('click', '.delete-btn', function(event){
+				var feedLi = $(this).parent().parent()
+				var id = feedLi.attr('feed-id');
+				$.ajax({
+					type: 'GET',
+					url:  '/gzh/subscribe?id=' + id,
+					beforeSend: function(XMLHttpRequest){
+						event.stopPropagation();
+					},
+					success: function(data){
+						feedLi.fadeOut('slow', function(){
+							$(this).remove();
+						})
+					}
+				});
+			});
+
+		$('#entries-column').animate({scrollTop: '0px'}, 0);
+		var first_feed = $('.feeds li:first');
+		if(first_feed.size() != 0){
+			entriesFirstPage(first_feed.attr('feed-id'));
+			first_feed.addClass('feed-selecting');
+		}else{
+		// $('.feeds').html('还没有订阅？点击添加订阅')
+		}
+
+		//
+		$('#entries-column').on('scroll', function(){
+			var scrollTop = $(this).scrollTop();
+			var scrollHeight = $(this)[0].scrollHeight;
+			var columnHeight = $(this).height();
+			if (unlock && scrollTop + columnHeight + 10 >= scrollHeight && scrollTop != 0){
+				unlock = false;
+				entriesNextPage($('.feed-selecting').attr('feed-id'));
+			};
+		});
+
+		//
+        //右边栏文章获取
+		$(document).on('click', 'li.entry-item:not(.entry-selecting)', function(){
+			$('.entry-selecting').removeClass('entry-selecting');
+			$(this).addClass('entry-selecting');
+			var id = $('.entry-id', $(this)).html();
+			getEntry(id);
+		});
+
+		<!--$(document).on('click', '.plus-active', function(){-->
+			<!--var postId = $(this).parent().attr('data-id');-->
+			<!--$.get('/entry_up?id=' + postId, function(){-->
+				<!--$(this).removeClass('plus-active');-->
+			<!--});-->
+		<!--});-->
+
+        $(document).on('click', '.setting', function(){
+            $('.delete-btn').toggle();
+        })
+	})
+</script>
+</head>
+<body>
+	<div class="wrap container-fluid">
+		<div class="row" style="height: 100%">
+			<div id="entry-column" class="col-md-7">
+				<div class="topbar col-md-7">
+					<ul class="list-unstyled">
+						<li>
+
+						</li>
+					</ul>
+				</div>
+				<div class="entry">
+				</div>
+				<div class="js-toolbar">
+					<!--<button type="button" class="btn btn-default btn-sm btn-plus plus-active">赞</button>-->
+				</div>
+			</div>
+
+			<div id="entries-column" class="col-md-3">
+				<div class="topbar col-md-3">
+
+				</div>
+				<ul class='entries list-unstyled'>
+				</ul>
+			</div>
+
+			<div id="feeds-column" class="col-md-2">
+				<div class="subscribe-toolbar topbar col-md-2">
+					<a href="/">+ 订阅</a>
+				</div>
+
+				<div class="feeds">
+                    <p class="setting"><img src="{% static 'images/setting.png' %}"/></p>
+					<ul class="list-unstyled">
+						{% for feed in feeds %}
+							<li feed-id='{{ feed.id }}'>
+							<div class='feed-info'>
+								<span class="feed-logo"><img width=35 src="{% static feed.logo %}"></span>
+								<span class="feed-title">{{ feed.wx_name }}</span>
+								<span class="delete-btn"> x </span>
+							</div>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

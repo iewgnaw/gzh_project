@@ -1,4 +1,10 @@
 # Byte-compiled / optimized / DLL files
+celerybeat-schedule
+static/images/gzh
+static/images/post
+static/images/compressed
+gzh/migrations/
+gzh_project/local_settings.py
 __pycache__/
 *.py[cod]
 

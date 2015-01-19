@@ -1,0 +1,159 @@
+html, body, .wrap, #feeds-column, #entries-column, #entry-column{
+	height: 100%;
+}
+
+body{
+	overflow: hidden;
+    background-color: #f4f6f8;
+}
+
+body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6
+{ font-family: "Microsoft YaHei",微软雅黑,arial,sans-serif}
+
+.clear{
+	clear: both;
+}
+
+.date{
+    margin-top: 1px;
+	color: #999999;
+}
+
+.loading{
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.setting{
+    padding-left: 185px;
+    margin-top: 6px;
+}
+
+#feeds-column, #entries-column, #entry-column{
+	top: 40px;
+    max-height: 94%;
+	overflow-y: scroll;
+}
+
+#feeds-column{
+    padding: 0;
+}
+
+#entries-column{
+    padding: 0 5px 0 0;
+}
+
+.entry{
+	font-size: 1.15em;
+	line-height: 25px;
+	padding: 0 0 20px 20px;
+}
+
+.entry blockquote{
+    border-width: 0px 0px 0px 0.4em;
+    border-left-color: rgb(221, 221, 221);
+    padding: 0 0 0 10px;
+    margin-top: 10px;
+}
+
+.subscribe-toolbar{
+	padding: 10px 0 10px 35px;
+	font-size: 16px;
+	font-weight: 600;
+	border-width: 0 0 1px 0;
+	border-color: #d2d1c8;
+	border-style: solid;
+}
+
+.feeds li{
+	cursor:pointer;
+	margin: 2px 0 2px 0;
+	border-radius: 1px;
+	padding: 6px 0 6px 0;
+}
+
+.delete-btn{
+	float: right;
+	padding: 6px 14px 6px 0;
+    display: none;
+}
+
+.delete-btn:hover{
+	text-decoration: underline;
+}
+
+.feeds li:hover, .feed-selecting{
+    opacity: 0.85;
+	background-color: #1f6692;
+    color: #fff;
+}
+
+.feed-info{
+	margin-left: 10px;
+}
+
+.entry-item{
+    color: #1f6692;
+	cursor:pointer;
+	border-style: solid;
+	border-width: 0 0 1px 3px;
+	border-left-color: #1f6692;
+	border-bottom-color: #d2d1c8;
+	padding: 8px 10px 8px 10px;
+    overflow-y: hidden;
+    margin-bottom: 2px;
+}
+
+
+.readed{
+	color: #999;
+	border-style: solid;
+	border-width: 0 0 1px 1px;
+	border-color: #d2d1c8;
+	margin-bottom: 0;
+}
+
+.entry-selecting{
+	border-left-width: 3px;
+	border-left-color: #c61b13;
+}
+
+.title {
+	font-size: 16px;
+    margin-right: 110px;
+    margin-top: 5px 0 5px 0;
+}
+
+.cover{
+    width: 100px;
+    height: 100px;
+    float: right;
+}
+
+.col-md-7{
+	padding-left: 0;
+}
+
+#entry-column img{
+	max-width: 98%;
+	display: block;
+	margin-top: 15px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.topbar{
+	height: 40px;
+	position: fixed;
+	top: 0;
+	border-style: solid;
+	border-width: 0 0 1px 1px;
+	border-color: #d2d1c8;
+	transition-timing-function: linear;
+}
+
+.js-toolbar{
+    display: none;
+	padding-left: 30px;
+	margin-bottom: 30px;
+}

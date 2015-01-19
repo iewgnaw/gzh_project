@@ -1,0 +1,14 @@
+{% extends 'base.html' %}%}
+
+{% block title %}Welcome{% endblock %}
+{% block main %}
+<div class="container welcome-wrapper col-md-8 col-md-offset-2">
+        <div class="first-welcome">
+            <p class="welcome">欢迎来到XXXX<p>
+            <p> XXX 不仅支持微信公众号的阅读，还支持将公众号文章打包成mobi格式电子书，每日定时投递到您的Kindle。</p>
+
+            <p>如果您需要此项服务, 请点击<a href="{% url 'setting' %}">此处</a>设置。
+            <p>如果您不需要此项服务，也可以选择<a href="{% url 'index' %}"> 跳过</a></p>
+        </div>
+    </div>
+{% endblock %}

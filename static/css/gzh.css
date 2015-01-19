@@ -1,0 +1,46 @@
+.hide{
+    display: none;
+}
+
+.gzh-header{
+    border-bottom: 1px solid #d2d1c8;
+    padding-bottom: 4px;
+    margin-bottom: 2px;
+}
+
+.gzh-header img{
+    width: 80px;
+    border-radius: 50%;
+}
+.gzh-header h3{
+    margin: 10px;
+}
+.gzh-header button{
+    margin-left: 15px;
+    padding: 5px;
+}
+
+.post-box{
+    color: #888888;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #d2d1c8;
+    margin-top: 2px;
+    min-height: 110px;
+}
+.post-info h4{
+    color: #1f6692;
+}
+.post-box cover{
+    width: 104px;
+    height: 100px;
+}
+
+.wx-id, .wx-summary, .wx-qr-code{
+    margin-top: 10px;
+    padding: 6px;
+    border-bottom: 1px solid #d2d1c8;
+}
+
+.wx-qr-code img{
+    padding: 5px 0 0 10px;
+}

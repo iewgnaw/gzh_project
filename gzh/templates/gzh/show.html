@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load my_tag %}
+
+{% block css %}
+<link href=" {% static 'css/gzh.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title%}
+{{ gzh.wx_name }}
+{% endblock %}
+
+{% block main %}
+<script>
+$(document).ready(function(){
+    $('.gzh-header .sub-btn').click(function(){
+        var id = $.trim($('.gzh-id').text());
+        var myself = $(this);
+        $.getJSON("/gzh/subscribe?id=" + id, function(data, status){
+            if(data['status'] == 200){
+                if(data['data'] == '0'){
+                    myself.html("+ 订阅");
+                }else if(data['data'] == '1'){
+                    myself.html("— 取消订阅");
+                }
+            }
+            else{
+            }
+        });
+    });
+});
+</script>
+<div class="gzh-header">
+    <div class="row">
+        <div class="col-md-1">
+            <img src="{% static gzh.logo %}"/>
+        </div>
+        <div class="col-md-3">
+            <h3>{{ gzh.wx_name }}</h3>
+            <button class="sub-btn btn btn-info btn-sm">
+                {% if user|has_subscribe:gzh.id %}
+                — 取消订阅
+                {% else %}
+                + 订阅
+                {% endif %}
+            </button>
+        </div>
+        <div class="gzh-id hide">
+            {{gzh.id}}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="post-list col-md-8">
+        <div class="row">
+            {% for post in posts %}
+            <div class="col-md-12 post-box">
+                <div class="col-md-10 post-info">
+                    <a href="{% url 'show_post' post.id %}"><h4>{{ post.title }}</h4></a>
+                    <p>{{ post.summary }}</p>
+                </div>
+                <div class="col-md-2 cover">
+                    <img width="100px" height="100px"  src="{{ post.cover }}"/>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="wx-id">
+            <strong>微信ID:</strong> {{ gzh.wx_id }}
+        </div>
+        <div class="wx-summary">
+            <strong>微信简介:</strong></br>
+            <p>{{ gzh.summary }}</p>
+        </div>
+        <div class="wx-qr-code">
+            <strong>二维码:</strong></br>
+            <img src="{% static gzh.qr_code %}"/>
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+<div class="row">
+    <ul class="pagination">
+        {% if posts.has_previous %}
+        <a href="?page={{ posts.privious_page_number }}">上一页</a>
+        {% endif %}
+        {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}">下一页</a>
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}

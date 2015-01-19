@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load my_tag %}
+
+{% block main %}
+<script>
+	function subscribe(tag, id){
+		$.getJSON("/gzh/subscribe?id=" + id, function(data, status){
+            if(data['status'] == 200){
+                if(data['data'] == '0'){
+                    $(tag).html("订阅");
+                }else if(data['data'] == '1'){
+                    $(tag).html("取消订阅");
+                }
+            }
+            else if(data['status'] == 401){
+                $(window.location).attr('href', '/signin/');
+            }
+		});
+	};
+
+	$(document).ready(function(){
+		$(".add-gzh button.add").click(function(){
+			$(this).hide();
+			$("#add-gzh-form").show();
+			$(".add-gzh p.message").hide()
+		})
+	});
+
+	$(document).click(function(){
+		$('.search-result-div').hide();
+	});
+
+	$(document).ready(function(){
+		$(".add-gzh button.submit").click(function(){
+			data = $("#add-gzh-form").serialize();
+			$.post("/gzh/add/", data, function(result, status){
+				$("#add-gzh-form").hide();
+				$(".add-gzh p.message").show();
+				$(".add-gzh .add").show();
+			});
+		});
+
+		$("input[name='query']").keypress(function (e){
+			if(e.which == 13){
+				query = $(this).val();
+				if($.trim(query) == ''){
+					return false;
+				};
+				var resultUl = $('.search-result').html('');
+				resultUl.parent().show();
+				$.getJSON("/gzh/search?query=" + query, function(data){
+					if(data.length == 0){
+						$('<li></li>').html('<a href="#">未找到相关公众号</a>')
+							.appendTo(resultUl);
+						return false;
+					};
+
+					$.each(data, function(index, item){
+						var li = $('<li></li>').attr('data-id', item.id);
+						var link = $('<a href=/gzh/' + item.id + '></a>')
+						$('<span><img src=' + item.logo + '></span>').appendTo(link);
+						$('<span>' + item.wx_name + '</span>').appendTo(link);
+						link.appendTo(li);
+						li.appendTo(resultUl);
+					})
+				})
+			};
+		});
+	});
+
+</script>
+<div class="sub-header">
+	<h2 class="sub-title">订阅中心</h2>
+    <input type="text" class="search-for" name="query" placeholder="搜索你感兴趣的公众号">
+    <div class="clear"></div>
+    <div class="search-result-div">
+    	<ul class="search-result list-unstyled">
+    	</ul>
+    </div>
+</div>
+
+<div class="sub-left">
+	<ul class="list-unstyled">
+		{% for category in categories %}
+		{% if category.id == current_id %}
+			<li class="cat-selecting"><a href="/gzh/cat/{{ category.id }}">{{ category.value }}</a></li>
+		{% else %}
+			<li><a href="/gzh/cat/{{ category.id }}">{{ category.value }}</a></li>
+		{% endif %}
+		{% endfor %}
+	</ul>
+	<div class="add-gzh" >
+		<button class="btn btn-success btn-sm add">添加公众号</button>
+		<p class="message">公众号添加中...</p>
+		<form id="add-gzh-form">{% csrf_token %}
+			{%for field in add_gzh_form %}
+				<div class="form-group form-inline">
+			    	<label class="control-label">{{ field.label }}</label>
+			    	{{ field }}
+			    </div>
+			{% endfor %}
+			<button type="button" class="btn btn-success btn-sm submit">提交</button>
+		</form>
+	</div>
+</div>
+
+<div class="content">
+	<ul class="list-unstyled gzh-content">
+		{% for gzh in gzhs %}
+			<li>
+				<div class="gzh-box">
+                    {% url 'show_gzh' gzh.id  as show_url %}
+                    <a class="logo" href="{{show_url}}">
+						<img src="{% static gzh.logo %}"/>
+					</a>
+					<div class="subs-button btn btn-info btn-sm" onclick="subscribe(this,{{ gzh.id }})">
+						{% if user|has_subscribe:gzh.id %}
+						取消订阅
+						{% else %}
+						订阅
+						{% endif %}
+					</div>
+                    <a href="{{show_url}}"><h4 class="name">{{ gzh.wx_name }}</h4></a>
+					<p class="desc">{{ gzh.summary|desc }}</p>
+				</div>
+			</li>
+		{% endfor %}
+	</ul>
+
+	<div class="clear"></div>
+
+    <ul class="pagination">
+        <li><a href="?page=1">&lt&lt</a></li>
+        {% for i in gzhs.paginator.page_range %}
+            <li {% if gzhs.number == i %} class="active" {% endif %}><a href="?page={{i}}">{{i}}</a></li>
+        {% endfor %}
+        <li><a href="?page={{ gzhs.paginator.num_pages }}">&gt&gt</a></li>
+    </ul>
+</div>
+{% endblock %}

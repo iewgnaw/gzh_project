@@ -1,0 +1,32 @@
+{% extends "post/post_base.html" %}
+{% load static %}
+
+{% block js %}
+<script src="{% static 'js/jquery.unveil.js'%}"></script>
+<script>
+$(document).ready(function() {
+        $("img").unveil();
+});
+</script>
+{% endblock %}
+
+{% block css %}
+	<link href="{% static 'css/post.css' %}" type="text/css" rel="stylesheet">
+    <style type="text/css">
+        img{
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+{{ post.title }}
+{% endblock %}
+
+
+{% block content %}
+	{% autoescape off %}
+	{{ post.content }}
+	{% endautoescape %}
+{% endblock %}

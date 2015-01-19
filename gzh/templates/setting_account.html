@@ -1,0 +1,32 @@
+{% extends 'setting_base.html' %}
+
+{% block title %}设置{% endblock %}
+{% block setting_content %}
+<p class="information">每日早上6点，系统将自动推送您订阅的昨日微信公众账号文章。请正确填写如下信息，确保推送正常。</p>
+
+<div class='help'>
+    <h3> Kindle投递设置帮助</h3>
+    <span class="badge">1</span> 进入你的亚马逊中国 Kindle <a href="https://www.amazon.cn/gp/digital/fiona/manage#pdocSettings">个人文档设置</a> 页面</br>
+    <span class="badge">2</span> 在页面底部将 kindle@xxxx.com 加入你的已认可的发件人电子邮箱列表
+</div>
+
+<form class="col-md-8 settings-form form-inline" role="form" method=post action="">{% csrf_token %}
+	{% if success_message %}
+		<p class="success-message">{{ success_message }}</p>
+	{% endif %}
+	{% if error_message %}
+		<p class="error-message">{{ error_message }}</p>
+	{% endif %}
+	{{ account_form.non_field_errors }}
+	{% for field in account_form %}
+        <div class="form-group">
+            <label class="control-label"> {{ field.label }}</label>
+            {{ field}}<span class="input-help">{{ field.help_text }}</span>
+	    </div>
+        {{ field.errors }}
+	{% endfor %}
+	<div class="form-group">
+		<button type="submit" class="btn btn-primary">保存设置</button>
+	</div>
+</form>
+{% endblock %}

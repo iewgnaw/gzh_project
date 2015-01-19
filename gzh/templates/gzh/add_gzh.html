@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+<!-- {% load static %} -->
+
+{% block main %}
+<div class="container">
+	<form role="form" class="form-horizontal col-md-3 col-md-offset-4" action="" method="post">{% csrf_token %}
+		{% for field in form %}
+		<div class="form-group">
+			<label class="control-lable">{{ field.label }}</label>
+			{{ field.errors }}
+			{{ field }}
+		</div>
+		{% endfor %}
+		<div class="form-group">
+			<button class="btn btn-default" type="submit">提交</button>
+		</div>
+	</form>
+	{% endblock %}
+</div>
