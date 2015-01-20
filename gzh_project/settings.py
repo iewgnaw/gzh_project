@@ -119,9 +119,14 @@ TEMPLATE_DIRS = (
 )
 
 #redis
-#REDIS_LOCATION = '127.0.0.1:63791:1'
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = '6379'
+REDIS_PASSWORD = 'asdf_1234'
+REDIS_DB = '0'
 
-BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+#BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+BROKER_URL = 'redis://:%s@%s:%s/%s' %(REDIS_PASSWORD, REDIS_HOST,REDIS_PORT, REDIS_DB)
+
 import djcelery
 djcelery.setup_loader()
 

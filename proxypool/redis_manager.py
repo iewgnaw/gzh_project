@@ -15,6 +15,7 @@ class RedisManager(object):
             RedisManager.rdb = redis.StrictRedis(
                 host=conf['host'],
                 port=conf['port'],
-                db=conf['db']
+                db=conf['db'],
+                password=conf['password']
             )
         return RedisManager.rdb
