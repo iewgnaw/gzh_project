@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 from .models import GongZhongHao, Post, Category, UserProfile, WeiBoProfile
 from .form import AddGzhForm, AccountForm
 from gzh import tasks
-from utils import formate_date
+from utils import format_date
 
 logger = logging.getLogger('gzh')
 
@@ -308,7 +308,7 @@ def entries_api(request, id):
         entries = []
         result['next_page'] = 0
     for entry in entries:
-        entry['last_modified'] = formate_date(entry['last_modified'])
+        entry['last_modified'] = format_date(entry['last_modified'])
         if userprofile.readed_posts.filter(pk=entry['id']).count() > 0:
             entry['readed'] = 0
         else:
@@ -373,7 +373,7 @@ def show(request, id):
     try:
         post_list = posts_paginator.page(page)
         for p in post_list:
-            p['last_modified'] = formate_date(p['last_modified'])
+            p['last_modified'] = format_date(p['last_modified'])
     except PageNotAnInteger:
         post_list = posts_paginator.page(1)
     except EmptyPage:
