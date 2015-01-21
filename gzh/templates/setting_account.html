@@ -6,11 +6,11 @@
 
 <div class='help'>
     <h3> Kindle投递设置帮助</h3>
-    <span class="badge">1</span> 进入你的亚马逊中国 Kindle <a href="https://www.amazon.cn/gp/digital/fiona/manage#pdocSettings">个人文档设置</a> 页面</br>
-    <span class="badge">2</span> 在页面底部将 kindle@xxxx.com 加入你的已认可的发件人电子邮箱列表
+    <span class="badge">1</span> 进入你的亚马逊中国 Kindle <a href="https://www.amazon.cn/gp/digital/fiona/manage#pdocSettings" target=”_blank">个人文档设置</a> 页面</br>
+    <span class="badge">2</span> 在页面底部将 kindle@weiread.pw 加入你的已认可的发件人电子邮箱列表
 </div>
 
-<form class="col-md-8 settings-form form-inline" role="form" method=post action="">{% csrf_token %}
+<form class="col-md-10 settings-form form-inline" role="form" method=post action="">{% csrf_token %}
 	{% if success_message %}
 		<p class="success-message">{{ success_message }}</p>
 	{% endif %}

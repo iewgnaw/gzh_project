@@ -117,7 +117,7 @@ class AccountForm(forms.Form):
 									required=False,
 							 		error_messages={'required': u'邮箱不能为空',
 								             	    'invalid': u'邮箱格式错误'},
-									help_text=u'xxx必须在您的kindle可信列表内')
+									help_text=u'kindle@weiread.pw必须在您的已认可发件人电子邮箱列表内')
     delivery_switch = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'form-control delivery'}),
                                   label=u'开启投递',
                                   required=False)
