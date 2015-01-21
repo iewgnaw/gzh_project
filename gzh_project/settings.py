@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'djcelery',
     'gzh',
     'proxypool',
+    'pure_pagination',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -61,6 +62,11 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
+}
+
+PAGINATION_SETTINGS = {
+    'PAGE_RANGE_DISPLAYED': 4,
+    'MARGIN_PAGES_DISPLAYED': 2,
 }
 
 ROOT_URLCONF = 'gzh_project.urls'

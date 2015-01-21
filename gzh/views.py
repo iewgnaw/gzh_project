@@ -8,7 +8,8 @@ import logging
 from django.shortcuts import (render, HttpResponse, HttpResponseRedirect,
                               get_object_or_404)
 from django.views.generic import View
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+#from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -144,7 +145,7 @@ def index(request, category_id=1):
     gzhs = GongZhongHao.objects.filter(category=Category.objects.
                 filter(pk=int(category_id))).order_by('-last_updated')
     paginator = Paginator(gzhs, 10)
-    page = request.GET.get("page")
+    page = request.GET.get("page", 1)
     try:
         gzh_list = paginator.page(page)
     except PageNotAnInteger:
@@ -302,7 +303,7 @@ def entries_api(request, id):
     paginator = Paginator(posts_qs, 10)
     page = request.GET.get('page', 1)
     try:
-        entries = paginator.page(page)
+        entries = paginator.page(page).object_list
         result['next_page'] = int(page) + 1
     except:
         entries = []
@@ -372,7 +373,7 @@ def show(request, id):
     page = request.GET.get("page", 1)
     try:
         post_list = posts_paginator.page(page)
-        for p in post_list:
+        for p in post_list.object_list:
             p['last_modified'] = format_date(p['last_modified'])
     except PageNotAnInteger:
         post_list = posts_paginator.page(1)

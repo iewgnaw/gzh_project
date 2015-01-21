@@ -107,7 +107,7 @@
 
 <div class="content">
 	<ul class="list-unstyled gzh-content">
-		{% for gzh in gzhs %}
+		{% for gzh in gzhs.object_list %}
 			<li>
 				<div class="gzh-box">
                     {% url 'show_gzh' gzh.id  as show_url %}
@@ -131,11 +131,27 @@
 	<div class="clear"></div>
 
     <ul class="pagination">
-        <li><a href="?page=1">&lt&lt</a></li>
-        {% for i in gzhs.paginator.page_range %}
-            <li {% if gzhs.number == i %} class="active" {% endif %}><a href="?page={{i}}">{{i}}</a></li>
-        {% endfor %}
-        <li><a href="?page={{ gzhs.paginator.num_pages }}">&gt&gt</a></li>
+        <li>
+            {% if gzhs.has_previous %}
+                <a href="?{{ gzhs.previous_page_number.querystring }}">上一页</a>
+            {% endif %}
+        </li>
+        {% if gzhs.has_other_pages %}
+            {% for page in gzhs.pages %}
+                {% if page %}
+                    {% ifequal page gzhs.number %}
+                        <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
+                    {% else %}
+                        <li><a href="?page={{ page }}">{{ page }}</a></li>
+                    {% endifequal %}
+                {% else %}
+                    <li class="disabled"><a>...</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if gzhs.has_next %}
+                <li><a href="?page={{ gzhs.next_page_number }}">下一页</a></li>
+            {% endif %}
+        {% endif %}
     </ul>
 </div>
 {% endblock %}
