@@ -133,7 +133,7 @@
     <ul class="pagination">
         <li>
             {% if gzhs.has_previous %}
-                <a href="?{{ gzhs.previous_page_number.querystring }}">上一页</a>
+                <a href="?page={{ gzhs.previous_page_number }}">上一页</a>
             {% endif %}
         </li>
         {% if gzhs.has_other_pages %}

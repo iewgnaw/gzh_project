@@ -86,7 +86,7 @@ $(document).ready(function(){
     <ul class="pagination">
         <li>
             {% if posts.has_previous %}
-                <a href="page=?{{ posts.previous_page_number }}">上一页</a>
+                <a href="?page={{ posts.previous_page_number }}">上一页</a>
             {% endif %}
         </li>
         {% if posts.has_other_pages %}
