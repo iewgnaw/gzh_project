@@ -83,8 +83,7 @@ class GZHSoGou(object):
         '''if the first page can not found the query, go to the next page '''
         next_page_tags = soup.find_all("a", id=re.compile("sogou_page_\d+"))
         for page_tag in next_page_tags:
-            r = self.request.get("http://weixin.sogou.com/weixin" + page_tag['href'],
-                        proxies={"http": ProxyPool.get()})
+            r = self.request.get("http://weixin.sogou.com/weixin" + page_tag['href'])
             soup = BeautifulSoup(r.text)
             data = self.search_gzh(soup, query_id)
             ''' if found the query, return '''

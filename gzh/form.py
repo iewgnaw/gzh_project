@@ -128,6 +128,11 @@ class AccountForm(forms.Form):
 			raise forms.ValidationError(u'kindle邮箱格式不对')
 		return kindle_email
 
+    def clean_delivery_switch(self):
+        if (not self.clean_kindle_email()) and self.cleaned_data.get('delivery_switch'):
+            raise forms.ValidationError(u'必须设置正确的kindle邮箱才能开启投递')
+        return self.cleaned_data.get('delivery_switch')
+
     def clean(self):
         return self.cleaned_data
 

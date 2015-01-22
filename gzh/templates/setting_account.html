@@ -10,7 +10,7 @@
     <span class="badge">2</span> 在页面底部将 kindle@weiread.pw 加入你的已认可的发件人电子邮箱列表
 </div>
 
-<form class="col-md-10 settings-form form-inline" role="form" method=post action="">{% csrf_token %}
+<form class="col-md-12 settings-form form-inline" role="form" method=post action="">{% csrf_token %}
 	{% if success_message %}
 		<p class="success-message">{{ success_message }}</p>
 	{% endif %}

@@ -136,9 +136,9 @@ class AddGzhView(View):
 
 
 def index(request, category_id=1):
-    if 1:
+    if not cache.get('categories'):
         categories = Category.objects.all()
-        # cache.set('categories', categories, 24 * 60 * 60)
+        cache.set('categories', categories, 24 * 60 * 60)
     else:
         categories = cache.get('categories')
 
@@ -180,9 +180,9 @@ def gzh_info(request, wx_id):
 def show_post(request, id):
     post = get_object_or_404(Post, id=int(id))
     soup = BeautifulSoup(post.content)
-    for img in soup.find_all('img'):
-        #img['src'] = settings.STATIC_URL + 'images/loader.gif'
-        img['src'] = '#'
+    #for img in soup.find_all('img'):
+        ##img['src'] = settings.STATIC_URL + 'images/loader.gif'
+        #img['src'] = '#'
     post.content = unicode(soup)
     return render(request, "post/show.html", {"post": post})
 
@@ -330,9 +330,9 @@ def entry_api(request, id):
     for img in soup.find_all('img'):
         if not img.has_attr('data-src'):
             img.extract()
-        else:
-            #img['src'] = settings.STATIC_URL + 'images/loader.gif'
-            img['src'] = '#'
+        #else:
+            ##img['src'] = settings.STATIC_URL + 'images/loader.gif'
+            #img['src'] = '#'
     return HttpResponse(unicode(soup))
 
 # //entry_up?id=1
