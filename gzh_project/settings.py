@@ -54,15 +54,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
 
 PAGINATION_SETTINGS = {
     'PAGE_RANGE_DISPLAYED': 4,
@@ -130,6 +121,22 @@ REDIS_PORT = '6379'
 REDIS_PASSWORD = 'asdf_1234'
 REDIS_DB = '0'
 
+CACHE = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '%s:%s' % (REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'DB': 1,
+            #'PASSWORD': '',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            }
+        },
+    },
+}
 #BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 BROKER_URL = 'redis://:%s@%s:%s/%s' %(REDIS_PASSWORD, REDIS_HOST,REDIS_PORT, REDIS_DB)
 

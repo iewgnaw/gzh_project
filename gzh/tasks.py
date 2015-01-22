@@ -27,7 +27,13 @@ monkey.patch_all(thread=False)
 from gevent.pool import Pool
 # python manage.py celeryd -l info
 
-REDIS_SESSION = redis.StrictRedis(host='localhost', port=6379, db=0)
+REDIS_SESSION = redis.StrictRedis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        db=settings.REDIS_DB,
+        password=settings.REDIS_PASSWORD
+)
+
 IMG_HASH = "images"
 
 from celery.utils.log import get_task_logger
