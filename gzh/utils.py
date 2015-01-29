@@ -92,7 +92,8 @@ def grab_low_quality_img(url, quality=30):
 
 def grab_img_with_qiniu(url, name):
     key = "images/%s.jpeg" % name
-    q = Auth(settings.QINIU_ACCESSKEY, settings.QINIU_SECRETKEY)
+    q = Auth(settings.QINIU_ACCESSKEY.encode('ascii'),
+             settings.QINIU_SECRETKEY.encode('ascii'))
     bucket = BucketManager(q)
     try:
         ret, info = bucket.fetch(url, settings.QINIU_BUCKET_NAME, key)

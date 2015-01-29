@@ -44,48 +44,25 @@ class GZHSoGou(object):
         if not os.path.isdir(GZH_IMAGE_ABS): os.makedirs(GZH_IMAGE_ABS)
         if not os.path.isdir(POST_IMAGE_ABS): os.makedirs(POST_IMAGE_ABS)
 
-    def make_post_data(self, query):
-        '''
-        visit weixin.sogou.com first, make the query post data
-        '''
-        response = self.request.get(INDEX_URL)
-        soup = BeautifulSoup(response.text)
-        asf = soup.find("input", attrs={"name": "_asf"}).get('value')
-        ast = soup.find("input", attrs={"name": "_ast"}).get('value')
-        w   = soup.find("input", attrs={"name": "w"}).get('value')
-        p   = soup.find("input", attrs={"name": "p"}).get('value')
-        ie  = soup.find("input", attrs={"name": "ie"}).get('value')
-
-        post_data = {"_asf"     : asf,
-                     "_ast"     : ast,
-                     "w"        : w,
-                     "p"        : p,
-                     "ie"       : ie,
-                     "query"    : query.encode('gbk'),
-                     "type"     :  "1"
-                     }
-
-        return post_data
-
-    def get_gzh_data(self, query, query_id = None):
+    def get_gzh_data(self, wx_name, wx_id):
         '''
         make the search request, then parse the response html, get the wx_name wx_id openid logo_url qr_code_url
         '''
-        post_data = self.make_post_data(query)
-        r = self.request.post(POST_URL, data = post_data)
+        r = self.request.get('http://weixin.sogou.com/weixin?query=%s&fr=sgsearch&type=1' % (wx_name))
         if not r.ok:
             return None
         soup = BeautifulSoup(r.text)
 
-        data = self.search_gzh(soup, query_id)
-        if data: return data
+        data = self.search_gzh(soup, wx_id)
+        if data:
+            return data
 
         '''if the first page can not found the query, go to the next page '''
         next_page_tags = soup.find_all("a", id=re.compile("sogou_page_\d+"))
         for page_tag in next_page_tags:
             r = self.request.get("http://weixin.sogou.com/weixin" + page_tag['href'])
             soup = BeautifulSoup(r.text)
-            data = self.search_gzh(soup, query_id)
+            data = self.search_gzh(soup, wx_id)
             ''' if found the query, return '''
             if data:
                 return data
@@ -94,16 +71,18 @@ class GZHSoGou(object):
     def search_gzh(self, soup, query_id):
         try:
             for item in soup.find_all(id=re.compile("sogou_vr_11002301_box")):
-                openid =  re.search(r"/gzh\?openid=(.+$)", item.get('href')).group(1) #openid
-                txt_box = item.select("div.txt-box")[0]
-                wx_box = item.select("div.pos-box")[0]
 
+                txt_box = item.select("div.txt-box")[0]
+                wx_id = txt_box.h4.text.strip().replace(u'微信号：',"").strip()
+                if wx_id != query_id:
+                    continue
                 wx_name = txt_box.h3.text.strip()
-                wx_id   = txt_box.h4.text.strip().replace(u'微信号：',"").strip()
-                if wx_id != query_id: continue
                 summary = txt_box.find("span",text="功能介绍：").next_sibling.text
-                logo = grab_img_with_qiniu(wx_box('img')[0]['src'], "lg_%s" % wx_id)
-                qr_code = grab_img_with_qiniu(wx_box('img')[1]['src'], "qr_%s" % wx_id)
+                openid =  re.search(r"/gzh\?openid=(.+$)", item.get('href')).group(1) #openid
+                logo_url = item.find(class_='pos-box').find_all('img')[0]['src']
+                qr_url = soup.find(class_='pos-box').find_all('img')[1]['src']
+                logo = grab_img_with_qiniu(logo_url, "lg_%s" % wx_id)
+                qr_code = grab_img_with_qiniu(qr_url, "qr_%s" % wx_id)
                 return {"wx_name": wx_name,
                         "wx_id":   wx_id,
                         "openid":  openid,
@@ -141,6 +120,8 @@ class GZHSoGou(object):
                 logging.debug(ex)
 
     def update_post_list(self, openid, time_from=0):
+        if time_from == 0:
+            time_from = int(time.time()) - settings.DAYS_AGO*24*60*60
         gzhjs_url = "http://weixin.sogou.com/gzhjs"
         p = {"cb": "sogou.weixin.gzhcb",
              "openid": openid,

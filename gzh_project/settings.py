@@ -137,8 +137,8 @@ CACHE = {
         },
     },
 }
-#BROKER_URL = 'amqp://guest:guest@localhost:5672//'
-BROKER_URL = 'redis://:%s@%s:%s/%s' %(REDIS_PASSWORD, REDIS_HOST,REDIS_PORT, REDIS_DB)
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+#BROKER_URL = 'redis://:%s@%s:%s/%s' %(REDIS_PASSWORD, REDIS_HOST,REDIS_PORT, REDIS_DB)
 
 import djcelery
 djcelery.setup_loader()
@@ -150,6 +150,9 @@ MOBI_TITLE = 'WeiRead'
 UPDATE_CRONTAB = {"minute": 25, "hour": 19}
 EMAIL_CRONTAB = {"minute": 0, "hour": 6}
 LIMAGE_CRONTAB = {"minute": 0, "hour": 5}
+
+#the first time to crawel of weixin
+DAYS_AGO = 30
 
 #redis key
 IMAGES = "images"

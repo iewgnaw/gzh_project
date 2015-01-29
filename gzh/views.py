@@ -250,8 +250,8 @@ def subscribe(request):
             return HttpResponse(json.dumps(result))
 
 def update_post(request):
-    tasks.MakeMobiTask.delay()
-    #tasks.UpdatePost.delay()
+    #tasks.MakeMobiTask.delay()
+    tasks.UpdatePost.delay()
     #tasks.MakeLocalImage.delay()
     return HttpResponse('ok')
 
