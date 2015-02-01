@@ -28,10 +28,10 @@ POST_STATIC_URL = os.path.join(settings.STATIC_URL, "images/post")
 USER_AGENT = 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:34.0) Gecko/20100101 Firefox/34.0'
 
 REDIS_SESSION = redis.StrictRedis(
-        host=settings.REDIS_HOST,
-        port=settings.REDIS_PORT,
-        db=settings.REDIS_DB,
-        password=settings.REDIS_PASSWORD
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
+    db=settings.REDIS_DB,
+    password=settings.REDIS_PASSWORD
 )
 
 IMG_HASH = "images"
@@ -42,11 +42,11 @@ def request_with_proxy(url, params=None):
 
 
 def format_date(timestamp):
-    offset_seconds = 8*60*60
-    day_seconds = 24*60*60
+    offset_seconds = 8 * 60 * 60
+    day_seconds = 24 * 60 * 60
     now = int(time.time())
-    offset_day = (now+offset_seconds)/day_seconds - \
-                 (timestamp+offset_seconds)/day_seconds
+    offset_day = (now + offset_seconds) / day_seconds - \
+                 (timestamp + offset_seconds) / day_seconds
     if offset_day == 0:
         day = u'今天'
     elif offset_day == 1:
@@ -62,7 +62,7 @@ def format_date(timestamp):
 def download_img_content(url, retry_times=3):
     if url.endswith('?tp=webp'):
         url = url.replace('?tp=webp', '')
-    while 1:
+    while True:
         try:
             r = requests.get(url, timeout=25,
                              headers={"user-agent": USER_AGENT})

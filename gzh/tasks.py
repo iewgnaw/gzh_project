@@ -11,27 +11,27 @@ from django.db import IntegrityError
 from django.core.paginator import Paginator
 from gzh.kindlemobi.kindlereader import generate_mobi_file
 import smtplib
-from .models import GongZhongHao, Post, UserProfile
 
-from .sogou import GZHSoGou
-from proxypool.proxypool import ProxyPool
-from utils import grab_low_quality_img
-
+import requests
 from celery import shared_task
 from celery.task import PeriodicTask, Task
 from celery.task.schedules import crontab
-import requests
 from bs4 import BeautifulSoup
 from gevent import monkey
 monkey.patch_all(thread=False)
 from gevent.pool import Pool
 # python manage.py celeryd -l info
 
+from .sogou import GZHSoGou
+from proxypool.proxypool import ProxyPool
+from utils import grab_low_quality_img
+from .models import GongZhongHao, Post, UserProfile
+
 REDIS_SESSION = redis.StrictRedis(
-        host=settings.REDIS_HOST,
-        port=settings.REDIS_PORT,
-        db=settings.REDIS_DB,
-        password=settings.REDIS_PASSWORD
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
+    db=settings.REDIS_DB,
+    password=settings.REDIS_PASSWORD
 )
 
 IMG_HASH = "images"
@@ -40,8 +40,9 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger('celery_task')
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
-file_handler = logging.handlers.RotatingFileHandler('/var/log/celery_task.log',
-                    maxBytes=10*1024*1024, backupCount=5)
+file_handler = logging.handlers.RotatingFileHandler(
+    '/var/log/celery_task.log',
+    maxBytes=10*1024*1024, backupCount=5)
 file_handler.setFormatter(formatter)
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
@@ -59,10 +60,10 @@ def add_gzh(wx_id, wx_name, category):
             logger.info("can not get info for %s-%s" % (wx_name, wx_id))
         else:
             GongZhongHao.objects.create(
-                    wx_id=data.get('wx_id'), wx_name=data.get('wx_name'),
-                    openid=data.get('openid'), summary=data.get('summary'),
-                    logo=data.get('logo'), qr_code=data.get('qr_code'),
-                    category=category)
+                wx_id=data.get('wx_id'), wx_name=data.get('wx_name'),
+                openid=data.get('openid'), summary=data.get('summary'),
+                logo=data.get('logo'), qr_code=data.get('qr_code'),
+                category=category)
 
 
 class UpdatePost(PeriodicTask):
@@ -78,8 +79,8 @@ class UpdatePost(PeriodicTask):
     def update_gzh(self, gzh):
         logger.info("update %s start" % gzh.wx_name)
         last_updated = GZHSoGou().update_post_list(
-                        gzh.openid,
-                        time_from=gzh.last_updated)
+            gzh.openid,
+            time_from=gzh.last_updated)
         logger.info("update %s end" % gzh.wx_name)
         gzh.last_updated = int(last_updated) + 1
         gzh.save(update_fields=['last_updated'])
@@ -102,8 +103,7 @@ class GrabPost(Task):
                 response = requests.get(url,
                                         proxies={"http": proxy},
                                         headers=headers,
-                                        timeout=15
-                                        )
+                                        timeout=15)
                 if "<!DOCTYPE html>" in response.text[:20]:
                     return response.text
                 else:
@@ -128,8 +128,8 @@ class GrabPost(Task):
         biz = re_for_biz.search(url).group(1)
         doc_id = "_".join([biz] + re_for_msgid.search(url).groupdict().values())
         last_modified = re_for_last_modified.search(html).group(1)
-        summary    = BeautifulSoup(re_for_summary.search(html).group(1)).text
-        title   = BeautifulSoup(re_for_title.search(html).group(1)).text
+        summary = BeautifulSoup(re_for_summary.search(html).group(1)).text
+        title = BeautifulSoup(re_for_title.search(html).group(1)).text
         cover = re_for_cover.search(html).group(1)
         # ih = ImageHandler(cover_url)
         # cover = ih.download("%s_0" %doc_id)
@@ -137,7 +137,7 @@ class GrabPost(Task):
 
         # parse content
         clean_tags = ['script']
-        clean_ids  = ['js_toobar', 'js_pc_qr_code', 'js_ad_area']
+        clean_ids = ['js_toobar', 'js_pc_qr_code', 'js_ad_area']
         for tag_id in clean_ids:
             tag = article.find(id=tag_id)
             if tag:
@@ -194,21 +194,20 @@ class MakeMobiTask(PeriodicTask):
         for userprofile in UserProfile.objects.filter(delivery=True):
             mail_to = userprofile.kindle_email
 
-            updated_feeds = []
-            index = 1
-            for gzh in userprofile.yesterday_updated_feeds():
-                feed = {'idx': index,
-                        'entries': self.get_formated_entries(gzh),
-                        'title': gzh.wx_name}
-                updated_feeds.append(feed)
-                index += 1
-            if not updated_feeds:
+            if not userprofile.yesterday_updated_feeds():
                 return None
+
+            updated_feeds = [
+                {'idx': index,
+                 'entries': self.get_formated_entries(gzh),
+                 'title': gzh.wx_name}
+                for (index, gzh) in enumerate(userprofile.yesterday_updated_feeds())
+            ]
+
             try:
                 mobi_file = generate_mobi_file(updated_feeds)
             except Exception as ex:
-                logger.warning("generate mobi falied for user %s"
-                                % mail_to)
+                logger.warning("generate mobi falied for user %s" % mail_to)
                 logger.exception(ex)
                 return
             if mobi_file is not None:
@@ -217,26 +216,22 @@ class MakeMobiTask(PeriodicTask):
                     self.send_mail(mobi_file, mail_to)
                     logger.info('END: send email -> %s' % mail_to)
                 except smtplib.SMTPException, ex:
-                    logger.warning("send email falied for user %s"
-                                    % mail_to)
+                    logger.warning("send email falied for user %s" % mail_to)
                     logger.exception(ex)
 
     def get_formated_entries(self, gzh):
-        entries = []
-        index = 1
-        for post in gzh.yesterday_posts():
-            entry = {
-                    'idx': index,
-                    'title': post.title,
-                    'url':  post.url,
-                    'published': time.strftime("%Y-%m-%d",
-                                        time.localtime(post.last_modified)),
-                    'content': self.parse_content(post.content),
-                    'author': gzh.wx_name,
-                    'stripped': post.summary
-            }
-            entries.append(entry)
-            index += 1
+        entries = [
+            {'idx': index,
+             'title': post.title,
+             'url':  post.url,
+             'published': time.strftime(
+                             "%Y-%m-%d",
+                             time.localtime(post.last_modified)),
+             'content': self.parse_content(post.content),
+             'author': gzh.wx_name,
+             'stripped': post.summary}
+             for (index, post) in enumerate(gzh.yesterday_posts())
+        ]
         return entries
 
     def parse_content(self, content):
@@ -272,13 +267,13 @@ class MakeMobiTask(PeriodicTask):
                           time.strftime('%y-%m-%d', time.localtime(time.time()))),
                   'body':       u'hello',
                   'to':         [mail_to]
-                  }
+                 }
         msg = EmailMessage(**kwargs)
         msg.attach_file(attach)
         try:
             msg.send(fail_silently=False)
         except smtplib.SMTPException:
-            logger.warning("send %s failed" %attach)
+            logger.warning("send %s failed" % attach)
             raise
 
 
@@ -297,7 +292,6 @@ class MakeLocalImage(PeriodicTask):
     def _make_yesterday_local_image(self, gzh):
         pool = Pool()
         for post in gzh.yesterday_posts():
-            imgs_src = []
-            for img_tag in BeautifulSoup(post.content).find_all('img'):
-                imgs_src.append(img_tag['data-src'])
+            imgs_src = [img_tag['data-src'] for img_tag in
+                        BeautifulSoup(post.content).find_all('img')]
             pool.map(grab_low_quality_img, imgs_src)

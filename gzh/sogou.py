@@ -23,7 +23,7 @@ GZH_STATIC_URL = os.path.join(settings.STATIC_URL, "images/gzh")     #the static
 POST_STATIC_URL = os.path.join(settings.STATIC_URL, "images/post")
 
 INDEX_URL = "http://weixin.sogou.com/"
-POST_URL  = "http://weixin.sogou.com/weixin"
+POST_URL = "http://weixin.sogou.com/weixin"
 
 USER_AGENTS = ["Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36",
                "Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0",
@@ -73,12 +73,12 @@ class GZHSoGou(object):
             for item in soup.find_all(id=re.compile("sogou_vr_11002301_box")):
 
                 txt_box = item.select("div.txt-box")[0]
-                wx_id = txt_box.h4.text.strip().replace(u'微信号：',"").strip()
+                wx_id = txt_box.h4.text.strip().replace('微信号：', "").strip()
                 if wx_id != query_id:
                     continue
                 wx_name = txt_box.h3.text.strip()
-                summary = txt_box.find("span",text="功能介绍：").next_sibling.text
-                openid =  re.search(r"/gzh\?openid=(.+$)", item.get('href')).group(1) #openid
+                summary = txt_box.find("span", text="功能介绍：").next_sibling.text
+                openid = re.search(r"/gzh\?openid=(.+$)", item.get('href')).group(1)
                 logo_url = item.find(class_='pos-box').find_all('img')[0]['src']
                 qr_url = soup.find(class_='pos-box').find_all('img')[1]['src']
                 logo = grab_img_with_qiniu(logo_url, "lg_%s" % wx_id)
@@ -130,7 +130,7 @@ class GZHSoGou(object):
             }
         response = self._request_with_proxy(gzhjs_url, p)
 
-        updated_time_list= re.findall(r'\<lastModified\>(\d+)', response.text)
+        updated_time_list = re.findall(r'\<lastModified\>(\d+)', response.text)
         last_updated = max([int(i) for i in updated_time_list])
 
         next_page = self.cleaning_data(response.text, time_from)
@@ -151,8 +151,8 @@ class GZHSoGou(object):
         '''
         from tasks import GrabPost
         next_page = True
-        dic_text = re.search(r'sogou.weixin.gzhcb\(({.+})\)',text).group(1)
-        data_utf8 = dic_text.replace('encoding=\\"gbk\\"','encoding=\\"utf-8\\"')
+        dic_text = re.search(r'sogou.weixin.gzhcb\(({.+})\)', text).group(1)
+        data_utf8 = dic_text.replace('encoding=\\"gbk\\"', 'encoding=\\"utf-8\\"')
         dic_data = json.loads(data_utf8)
 
         #the last page

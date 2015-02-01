@@ -13,7 +13,6 @@ from .views import (AddGzhView, index, update_post, subscribe, show, show_post,
 
 urlpatterns = patterns('',
     url(r'^$', index, name='index'),
-    #url(r'^update', update_post),
     url(r'cat/(?P<category_id>\d+)$', index),
     url(r'^subscribe', subscribe),
     url(r'^(?P<id>\d+)/entries/$', entries_api),
@@ -27,4 +26,3 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-

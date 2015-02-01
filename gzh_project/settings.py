@@ -68,14 +68,15 @@ WSGI_APPLICATION = 'gzh_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 import codecs
-codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else None)
+codecs.register(
+    lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else None)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-                'read_default_file': "/home/wei/.my_gzh.cnf",
-                'charset':  'utf8mb4',
+            'read_default_file': "/home/wei/.my_gzh.cnf",
+            'charset': 'utf8mb4',
         }
     }
 }
@@ -101,9 +102,9 @@ USE_TZ = True
 STATIC_URL = 'http://7u2k4s.com1.z0.glb.clouddn.com/'
 
 STATICFILES_DIRS = (
-    ("css", os.path.join(STATIC_ROOT,'css')),
-    ("js", os.path.join(STATIC_ROOT,'js')),
-    ("images", os.path.join(STATIC_ROOT,'images')),
+    ("css", os.path.join(STATIC_ROOT, 'css')),
+    ("js", os.path.join(STATIC_ROOT, 'js')),
+    ("images", os.path.join(STATIC_ROOT, 'images')),
 )
 
 TEMPLATE_LOADERS = (
@@ -115,7 +116,7 @@ TEMPLATE_DIRS = (
     "templates",
 )
 
-#redis
+# redis
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
 REDIS_PASSWORD = 'asdf_1234'
@@ -146,15 +147,15 @@ djcelery.setup_loader()
 LOGIN_URL = '/signin/'
 MOBI_TITLE = 'WeiRead'
 
-#crontab task setting
+# crontab task setting
 UPDATE_CRONTAB = {"minute": 25, "hour": 19}
 EMAIL_CRONTAB = {"minute": 0, "hour": 6}
 LIMAGE_CRONTAB = {"minute": 0, "hour": 5}
 
-#the first time to crawel of weixin
+# the first time to crawel of weixin
 DAYS_AGO = 30
 
-#redis key
+# redis key
 IMAGES = "images"
 PROXY = "proxy"
 

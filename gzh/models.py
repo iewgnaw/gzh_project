@@ -7,18 +7,21 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+
+
 class Category(models.Model):
     value = models.CharField(max_length=255)
 
     def __unicode__(self):
         return self.value
 
+
 class GongZhongHao(models.Model):
     wx_name = models.CharField(max_length=50, db_index=True)
-    wx_id   = models.CharField(max_length=30, db_index=True, unique=True)
-    openid  = models.CharField(max_length=50, db_index=True, unique=True)
+    wx_id = models.CharField(max_length=30, db_index=True, unique=True)
+    openid = models.CharField(max_length=50, db_index=True, unique=True)
     summary = models.TextField()
-    logo    = models.CharField(max_length=255)
+    logo = models.CharField(max_length=255)
     qr_code = models.CharField(max_length=255)
     last_updated = models.BigIntegerField(default=0)
     category = models.ForeignKey(Category)
@@ -33,17 +36,18 @@ class GongZhongHao(models.Model):
 
     def yesterday_posts(self):
         now = int(time.time())
-        return self.post_set.filter(last_modified__gte=now - 60*60*24)
+        return self.post_set.filter(last_modified__gte=now - 60 * 60 * 24)
+
 
 class Post(models.Model):
     doc_id = models.CharField(max_length=100, db_index=True, unique=True)
-    title  = models.CharField(max_length=200)
-    url    = models.CharField(max_length=255, unique=True)
-    summary= models.TextField()
+    title = models.CharField(max_length=200)
+    url = models.CharField(max_length=255, unique=True)
+    summary = models.TextField()
     content = models.TextField()
     # ALTER TABLE gzh_post CHANGE content content longtext
-        # CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    cover   = models.CharField(max_length=255)
+    # CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    cover = models.CharField(max_length=255)
     last_modified = models.BigIntegerField()
     ups = models.BigIntegerField(default=0)
     gongzhonghao = models.ForeignKey(GongZhongHao)
@@ -58,11 +62,13 @@ class Post(models.Model):
         self.ups += plus
         self.save()
 
+
 class WeiBoProfile(models.Model):
     access_token = models.CharField(max_length=64)
     uid = models.BigIntegerField()
     screen_name = models.CharField(max_length=191)
     avatar = models.CharField(max_length=255)
+
 
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
@@ -92,7 +98,7 @@ class UserProfile(models.Model):
     def yesterday_updated_feeds(self):
         feeds = []
         for feed in self.subscribes.all():
-            if feed.last_updated >= int(time.time()) - 60*60*24:
+            if feed.last_updated >= int(time.time()) - 60 * 60 * 24:
                 feeds.append(feed)
         return feeds
 
